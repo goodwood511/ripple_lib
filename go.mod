@@ -1,4 +1,4 @@
-module ripple_lib
+module github.com/goodwood511/ripple_lib
 
 go 1.22.0
 
