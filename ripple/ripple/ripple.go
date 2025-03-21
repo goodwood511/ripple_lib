@@ -6,11 +6,11 @@ import (
 	"fmt"
 	"strconv"
 
-	"ripple_lib/ripple-sdk/crypto"
-	"ripple_lib/ripple-sdk/data"
-	"ripple_lib/ripple-sdk/websockets"
+	"github.com/goodwood511/ripple_lib/ripple-sdk/crypto"
+	"github.com/goodwood511/ripple_lib/ripple-sdk/data"
+	"github.com/goodwood511/ripple_lib/ripple-sdk/websockets"
 
-	rippleaddr "ripple_lib/ripple/rippleaddr"
+	rippleaddr "github.com/goodwood511/ripple_lib/ripple/rippleaddr"
 
 	"github.com/sirupsen/logrus"
 )

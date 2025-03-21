@@ -11,7 +11,7 @@ import (
 	"sort"
 	"time"
 
-	"ripple_lib/ripple-sdk/data"
+	"github.com/goodwood511/ripple_lib/ripple-sdk/data"
 
 	"github.com/golang/glog"
 	"github.com/gorilla/websocket"

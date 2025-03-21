@@ -3,7 +3,7 @@ package websockets
 import (
 	"encoding/json"
 
-	"ripple_lib/rubblelabs/ripple/data"
+	"github.com/goodwood511/ripple_lib/rubblelabs/ripple/data"
 )
 
 // Fields from subscribed ledger stream messages

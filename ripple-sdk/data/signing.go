@@ -1,7 +1,7 @@
 package data
 
 import (
-	"ripple_lib/rubblelabs/ripple/crypto"
+	"github.com/goodwood511/ripple_lib/rubblelabs/ripple/crypto"
 
 	"github.com/btcsuite/btcd/btcec"
 )

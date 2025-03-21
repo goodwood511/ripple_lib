@@ -2,8 +2,8 @@ package main
 
 import (
 	"encoding/hex"
+	"github.com/goodwood511/ripple_lib/ripple/rippleaddr"
 	"github.com/sirupsen/logrus"
-	"ripple_lib/ripple/rippleaddr"
 )
 
 func main() {

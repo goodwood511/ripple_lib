@@ -2,7 +2,7 @@ package rippleaddr
 
 import (
 	"fmt"
-	"ripple_lib/ripple-sdk/crypto"
+	"github.com/goodwood511/ripple_lib/ripple-sdk/crypto"
 
 	"github.com/btcsuite/btcd/btcec"
 )
