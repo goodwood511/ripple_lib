@@ -32,25 +32,36 @@ key: raw private key, in 33 bytes
 */
 
 func SignWithPrivKey(s Signer, key []byte) error {
-
 	s.InitialiseForSigning()
-	privKey, pubKey := btcec.PrivKeyFromBytes(btcec.S256(), key)
+
+	// ✅ 1. 解析私钥（新版）
+	privKey, _ := btcec.PrivKeyFromBytes(key)
+	pubKey := privKey.PubKey()
+
+	// ✅ 2. 设置公钥
 	copy(s.GetPublicKey().Bytes(), pubKey.SerializeCompressed())
 
+	// ✅ 3. 获取待签名 hash + raw msg
 	hash, msg, err := SigningHash(s)
 	if err != nil {
 		return err
 	}
+
+	// ✅ 4. 签名（调用你项目中的 crypto.Sign 函数）
 	sig, err := crypto.Sign(privKey.Serialize(), hash.Bytes(), append(s.SigningPrefix().Bytes(), msg...))
 	if err != nil {
 		return err
 	}
+
+	// ✅ 5. 写入签名和 hash
 	*s.GetSignature() = VariableLength(sig)
+
 	hash, _, err = Raw(s)
 	if err != nil {
 		return err
 	}
 	copy(s.GetHash().Bytes(), hash.Bytes())
+
 	return nil
 }
 
@@ -92,35 +103,46 @@ func MultiSignInParallel(s Signer, key crypto.Key, sequence *uint32) (MultiSigne
 }
 
 func MultiSignInParallelWithPrivKey(s Signer, key []byte) (MultiSignerEntryEx, error) {
-
 	s.InitialiseForSigning()
 	var signer MultiSignerEntryEx
 
-	copy(s.GetPublicKey().Bytes(), "") //set the SigningPubKey to ""
-	privKey, pubKey := btcec.PrivKeyFromBytes(btcec.S256(), key)
+	// ✅ 清空 SigningPubKey
+	clear(s.GetPublicKey().Bytes())
 
+	// ✅ 升级为 btcec/v2
+	privKey, _ := btcec.PrivKeyFromBytes(key)
+	pubKey := privKey.PubKey()
+
+	// ✅ 获取 Account (公钥哈希)
 	account := crypto.Sha256RipeMD160(pubKey.SerializeCompressed())
-	hash, msg, err := MultiSignHash(s, account)
 
-	//for ECDSA crypto,
+	// ✅ 构造签名哈希
+	hash, msg, err := MultiSignHash(s, account)
+	if err != nil {
+		return signer, err
+	}
+
+	// ✅ 进行签名
 	sig, err := crypto.Sign(privKey.Serialize(), hash.Bytes(), append(s.SigningPrefix().Bytes(), msg...))
 	if err != nil {
 		return signer, err
 	}
 
+	// ✅ 填充 signer 字段
 	signer.Signer.SigningPubKey = new(PublicKey)
 	signer.Signer.TxnSignature = new(VariableLength)
 
 	*signer.GetSignature() = VariableLength(sig)
-	copy(signer.GetPublicKey().Bytes(), pubKey.SerializeCompressed()) //利用
+	copy(signer.GetPublicKey().Bytes(), pubKey.SerializeCompressed())
 	copy(signer.GetAccount().Bytes(), account)
 
+	// ✅ 计算最终交易 Hash
 	hash, _, err = Raw(s)
-
 	if err != nil {
 		return signer, err
 	}
-	copy(s.GetHash().Bytes(), hash.Bytes()) //copy hash
+	copy(s.GetHash().Bytes(), hash.Bytes())
+
 	return signer, nil
 }
 
