@@ -4,7 +4,7 @@ import (
 	"fmt"
 	"github.com/goodwood511/ripple_lib/ripple-sdk/crypto"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 )
 
 func RippleGenerateKey(s string) (crypto.Key, error) {
@@ -162,20 +162,22 @@ func RipplePubKeyToAddr(pubKey string) (string, error) {
 }
 
 func RipplePrivKeyToPub(privKey string) (string, error) {
-
 	if !CheckRipplePrivKey(privKey) {
 		return "", fmt.Errorf("Not a Ripple private key")
 	}
 
 	b, err := crypto.Base58Decode(privKey, crypto.ALPHABET)
 	if err != nil {
-		return " ", err
+		return "", err
 	}
 
-	k, _ := btcec.PrivKeyFromBytes(btcec.S256(), b[1:len(b)-4])
-	pubKey, err := crypto.NewAccountPublicKey(k.PubKey().SerializeCompressed())
+	// ✅ 使用 btcec/v2 新API
+	_, pub := btcec.PrivKeyFromBytes(b[1 : len(b)-4])
+
+	// 假设 NewAccountPublicKey 支持压缩公钥输入
+	pubKey, err := crypto.NewAccountPublicKey(pub.SerializeCompressed())
 	if err != nil {
-		return " ", err
+		return "", err
 	}
 	return pubKey.String(), nil
 }
@@ -193,16 +195,18 @@ func CheckRipplePrivKeyPub(privKey string, pubKey string) (bool, error) {
 		return false, nil
 	}
 }
-
-// NewAddress new address return key address pubkey error
 func NewAddress() ([]byte, string, string, error) {
 	ecdsaKey, err := crypto.NewECDSAKey(nil)
 	if err != nil {
 		return nil, "", "", err
 	}
+
+	// 添加 Serialize() 方法后，能正确取出 []byte
 	key := ecdsaKey.Serialize()
 
-	k, _ := btcec.PrivKeyFromBytes(btcec.S256(), key)
+	// 新版 btcec/v2 调用方式
+	k, _ := btcec.PrivKeyFromBytes(key)
+
 	pubKey, err := crypto.NewAccountPublicKey(k.PubKey().SerializeCompressed())
 	if err != nil {
 		return nil, "", "", err

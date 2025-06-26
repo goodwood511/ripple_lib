@@ -3,8 +3,9 @@ package crypto
 import (
 	"errors"
 	"fmt"
+	"github.com/btcsuite/btcd/btcec/v2/ecdsa"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 	"golang.org/x/crypto/ed25519"
 )
 
@@ -65,23 +66,22 @@ func verifyEd25519(pubKey, signature, msg []byte) (bool, error) {
 
 // Returns DER encoded signature from input hash
 func signECDSA(privateKey, hash []byte) ([]byte, error) {
-	priv, _ := btcec.PrivKeyFromBytes(btcec.S256(), privateKey)
-	sig, err := priv.Sign(hash)
-	if err != nil {
-		return nil, err
-	}
+	priv, _ := btcec.PrivKeyFromBytes(privateKey)
+	sig := ecdsa.Sign(priv, hash)
 	return sig.Serialize(), nil
 }
 
 // Verifies a hash using DER encoded signature
 func verifyECDSA(pubKey, signature, hash []byte) (bool, error) {
-	sig, err := btcec.ParseDERSignature(signature, btcec.S256())
+	sig, err := ecdsa.ParseDERSignature(signature) // ✅ 从 ecdsa 包中解析
 	if err != nil {
 		return false, err
 	}
-	pk, err := btcec.ParsePubKey(pubKey, btcec.S256())
+
+	pk, err := btcec.ParsePubKey(pubKey) // ✅ 新版只需一个参数
 	if err != nil {
-		return false, nil
+		return false, err
 	}
-	return sig.Verify(hash, pk), nil
+
+	return sig.Verify(hash, pk), nil // ✅ 使用 ecdsa.Signature 的 Verify 方法
 }

@@ -3,7 +3,7 @@ package data
 import (
 	"github.com/goodwood511/ripple_lib/rubblelabs/ripple/crypto"
 
-	"github.com/btcsuite/btcd/btcec"
+	"github.com/btcsuite/btcd/btcec/v2"
 )
 
 // sign with secrete
