@@ -6,7 +6,7 @@ toolchain go1.24.0
 
 require (
 	github.com/bits-and-blooms/bitset v1.22.0
-	github.com/btcsuite/btcd/btcec/v2 v2.3.5
+	github.com/btcsuite/btcd/btcec/v2 v2.3.2
 	github.com/golang/glog v1.2.4
 	github.com/gorilla/websocket v1.5.3
 	github.com/sirupsen/logrus v1.9.3
