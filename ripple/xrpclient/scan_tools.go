@@ -1,5 +1,7 @@
 package xrpclient
 
+import "time"
+
 // GetLatestLedgerIndex returns the latest validated ledger index
 func (c *Client) GetLatestLedgerIndex() (uint64, error) {
 	req := map[string]interface{}{
@@ -19,7 +21,7 @@ func (c *Client) GetLatestLedgerIndex() (uint64, error) {
 }
 
 // GetLedgerTransactions returns the transactions in a specific ledger (only payments)
-func (c *Client) GetLedgerTransactions(ledgerIndex uint64) ([]Transaction, error) {
+func (c *Client) GetLedgerTransactions(ledgerIndex uint64) ([]Transaction, time.Time, string, error) {
 	req := map[string]interface{}{
 		"method": "ledger",
 		"params": []interface{}{map[string]interface{}{
@@ -31,9 +33,14 @@ func (c *Client) GetLedgerTransactions(ledgerIndex uint64) ([]Transaction, error
 	res := RspTransaction{}
 	_, err := c.client.R().SetBody(req).SetResult(&res).Post(c.rpcURL)
 	if err != nil {
-		return nil, err
+		return nil, time.Time{}, "", err
 	}
-	return res.Result.Ledger.Transactions, nil
+
+	xrpTimestamp := res.Result.Ledger.CloseTime
+	xrpEpoch := time.Date(2000, 1, 1, 0, 0, 0, 0, time.UTC)
+	realTime := xrpEpoch.Add(time.Duration(xrpTimestamp) * time.Second)
+
+	return res.Result.Ledger.Transactions, realTime, res.Result.Status, nil
 }
 
 // ParsePayments filters payment transactions with XRP only (Amount is string)

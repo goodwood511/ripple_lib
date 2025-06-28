@@ -16,11 +16,12 @@ func main() {
 	logrus.Infoln(latestBlock)
 	latestBlock = 8454107
 
-	transactions, err := client.GetLedgerTransactions(latestBlock)
+	transactions, blockTime, status, err := client.GetLedgerTransactions(latestBlock)
 	if err != nil {
 		logrus.Warnln(err)
 		return
 	}
+	logrus.Infoln("Block time:", blockTime, "status", status)
 	payments := xrpclient.ParsePayments(transactions)
 
 	for _, payment := range payments {
