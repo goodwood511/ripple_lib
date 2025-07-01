@@ -14,7 +14,7 @@ func main() {
 		return
 	}
 	logrus.Infoln(latestBlock)
-	latestBlock = 8454107
+	latestBlock = 8546532
 
 	transactions, blockTime, status, err := client.GetLedgerTransactions(latestBlock)
 	if err != nil {

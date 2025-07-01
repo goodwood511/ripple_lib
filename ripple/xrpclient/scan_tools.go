@@ -31,6 +31,7 @@ func (c *Client) GetLedgerTransactions(ledgerIndex uint64) ([]Transaction, time.
 		}},
 	}
 	res := RspTransaction{}
+	//c.client.SetDebug(true)
 	_, err := c.client.R().SetBody(req).SetResult(&res).Post(c.rpcURL)
 	if err != nil {
 		return nil, time.Time{}, "", err

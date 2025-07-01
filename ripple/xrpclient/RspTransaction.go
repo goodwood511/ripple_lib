@@ -1,5 +1,7 @@
 package xrpclient
 
+import "encoding/json"
+
 type RspTransaction struct {
 	Result Result `json:"result"`
 }
@@ -28,16 +30,32 @@ type Ledger struct {
 	ParentHash          string        `json:"parent_hash"`
 	TransactionHash     string        `json:"transaction_hash"`
 }
+type StringAmount string
+
+func (a *StringAmount) UnmarshalJSON(data []byte) error {
+	// 如果是 string 类型，就正常赋值
+	if data[0] == '"' {
+		var s string
+		if err := json.Unmarshal(data, &s); err != nil {
+			return err
+		}
+		*a = StringAmount(s)
+		return nil
+	}
+	// 如果是 object（{开头），直接忽略
+	*a = ""
+	return nil
+}
 
 type Transaction struct {
-	DeliverMax         string        `json:"DeliverMax"`
+	DeliverMax         StringAmount  `json:"DeliverMax"`
 	Account            string        `json:"Account"`
 	Destination        string        `json:"Destination"`
 	MetaData           MetaData      `json:"metaData"`
 	TransactionType    string        `json:"TransactionType"`
 	TxnSignature       string        `json:"TxnSignature"`
 	SigningPubKey      string        `json:"SigningPubKey"`
-	Amount             string        `json:"Amount"`
+	Amount             StringAmount  `json:"Amount"`
 	Fee                string        `json:"Fee"`
 	Sequence           int64         `json:"Sequence"`
 	DestinationTag     *int64        `json:"DestinationTag,omitempty"`
@@ -63,7 +81,7 @@ type MetaData struct {
 	AffectedNodes     []AffectedNode `json:"AffectedNodes"`
 	TransactionResult string         `json:"TransactionResult"`
 	TransactionIndex  int64          `json:"TransactionIndex"`
-	DeliveredAmount   string         `json:"delivered_amount"`
+	//DeliveredAmount   string         `json:"delivered_amount"`
 }
 
 type AffectedNode struct {
@@ -79,9 +97,9 @@ type CreatedNode struct {
 }
 
 type NewFields struct {
-	Account  string `json:"Account"`
-	Sequence int64  `json:"Sequence"`
-	Balance  string `json:"Balance"`
+	Account  string       `json:"Account"`
+	Sequence int64        `json:"Sequence"`
+	Balance  StringAmount `json:"Balance"`
 }
 
 type DeletedNode struct {
@@ -109,11 +127,11 @@ type ModifiedNode struct {
 }
 
 type ModifiedNodeFinalFields struct {
-	Account       *string `json:"Account,omitempty"`
-	OwnerCount    *int64  `json:"OwnerCount,omitempty"`
-	Flags         int64   `json:"Flags"`
-	Sequence      *int64  `json:"Sequence,omitempty"`
-	Balance       *string `json:"Balance,omitempty"`
+	Account    *string `json:"Account,omitempty"`
+	OwnerCount *int64  `json:"OwnerCount,omitempty"`
+	Flags      int64   `json:"Flags"`
+	Sequence   *int64  `json:"Sequence,omitempty"`
+	//Balance       *string `json:"Balance,omitempty"`
 	TicketCount   *int64  `json:"TicketCount,omitempty"`
 	Owner         *string `json:"Owner,omitempty"`
 	IndexNext     *string `json:"IndexNext,omitempty"`
@@ -122,8 +140,8 @@ type ModifiedNodeFinalFields struct {
 }
 
 type PreviousFields struct {
-	Sequence    *int64 `json:"Sequence,omitempty"`
-	Balance     string `json:"Balance"`
+	Sequence *int64 `json:"Sequence,omitempty"`
+	//Balance     string `json:"Balance"`
 	OwnerCount  *int64 `json:"OwnerCount,omitempty"`
 	TicketCount *int64 `json:"TicketCount,omitempty"`
 }
