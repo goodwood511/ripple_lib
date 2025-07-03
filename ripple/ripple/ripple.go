@@ -257,7 +257,7 @@ amount: in drops
 fee: in drops.
 tag: destination tag
 */
-func (r *Ripple) CreateSingleSignPayment(from, to, amount, fee, memo string, tag, seq uint32) (*data.Payment, error) {
+func (r *Ripple) CreateSingleSignPayment(from, to, amount, fee, memo string, seq uint32, tag *uint32) (*data.Payment, error) {
 
 	var p data.Payment
 
@@ -277,23 +277,22 @@ func (r *Ripple) CreateSingleSignPayment(from, to, amount, fee, memo string, tag
 		return nil, fmt.Errorf("Amount %v or fee %v is illegal", amount, fee)
 	}
 
-	account_from, err := data.NewAccountFromAddress(from)
+	accountFrom, err := data.NewAccountFromAddress(from)
 	if err != nil {
 		logrus.Errorf("Fail to covert address %v to account, err is %v", from, err)
 		return nil, err
 	}
 
-	account_to, err := data.NewAccountFromAddress(to)
+	accountTo, err := data.NewAccountFromAddress(to)
 	if err != nil {
 		logrus.Errorf("Fail to covert address %v to account, err is %v", to, err)
 		return nil, err
 	}
 
-	//var tag uint32 = 102285
 	p.Sequence = seq
-	p.Destination = (*account_to)
-	p.DestinationTag = &tag
-	a, err := data.NewAmount(int64(damount))
+	p.Destination = *accountTo
+	p.DestinationTag = tag
+	a, err := data.NewAmount(damount)
 	if err != nil {
 		logrus.Errorf("Amount %v is illegal, err is %v", amount, err)
 		return nil, err
@@ -301,21 +300,13 @@ func (r *Ripple) CreateSingleSignPayment(from, to, amount, fee, memo string, tag
 	p.Amount = *a
 	base := p.GetBase()
 	base.TransactionType = data.PAYMENT
-	base.Account = (*account_from)
+	base.Account = *accountFrom
 	b, err := data.NewNativeValue(dfee)
 	if err != nil {
 		logrus.Errorf("Fee %v is illegal, err is %v", fee, err)
 		return nil, err
 	}
 	base.Fee = *b
-
-	// if len(memo) != 0 {
-	// 	var m data.Memo
-	// 	m.SetTypeFromString("BHEX")
-	// 	m.SetDataFromString(memo)
-	// 	m.SetFormatFromString("12344321")
-	// 	base.Memos = append(base.Memos, m)
-	// }
 
 	return &p, nil
 }
@@ -340,7 +331,7 @@ func (r *Ripple) CreateDisableMasterKey(from, fee string, seq uint32) (*data.Acc
 		return nil, fmt.Errorf("fee %v is illegal", fee)
 	}
 
-	account_from, err := data.NewAccountFromAddress(from)
+	accountFrom, err := data.NewAccountFromAddress(from)
 	if err != nil {
 		logrus.Errorf("Fail to covert address %v to account, err is %v", from, err)
 		return nil, err
@@ -352,7 +343,7 @@ func (r *Ripple) CreateDisableMasterKey(from, fee string, seq uint32) (*data.Acc
 
 	base := p.GetBase()
 	base.TransactionType = data.ACCOUNT_SET
-	base.Account = (*account_from)
+	base.Account = *accountFrom
 	b, err := data.NewNativeValue(dfee)
 	if err != nil {
 		logrus.Errorf("Fee %v is illegal, err is %v", fee, err)
