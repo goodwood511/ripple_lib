@@ -9,6 +9,7 @@ import (
 	"net/url"
 	"reflect"
 	"sort"
+	"strings"
 	"time"
 
 	"github.com/goodwood511/ripple_lib/ripple-sdk/data"
@@ -44,6 +45,9 @@ func NewRemote(endpoint string) (*Remote, error) {
 	u, err := url.Parse(endpoint)
 	if err != nil {
 		return nil, err
+	}
+	if !strings.Contains(u.Host, ":") {
+		u.Host += ":443" // HTTPS 默认端口
 	}
 	c, err := net.DialTimeout("tcp", u.Host, dialTimeout)
 	if err != nil {
